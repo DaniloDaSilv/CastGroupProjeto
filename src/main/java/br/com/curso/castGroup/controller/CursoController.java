@@ -1,8 +1,11 @@
 package br.com.curso.castGroup.controller;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -33,6 +36,12 @@ public class CursoController {
 	@GetMapping("/descricao/{descricao}")
 	public ResponseEntity<List<Curso>> getByDescricao(@PathVariable String descricao) {
 		return ResponseEntity.ok(repository.getByDescricao(descricao));
+	}
+	@GetMapping("/dataInicio/{dataInicio}/{dataFim}")
+	public ResponseEntity<List<Curso>> periodo(@PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd")LocalDate dataInicio,
+			@PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd")LocalDate dataFim ) {
+		LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+		return ResponseEntity.ok(repository.getByDataInicio(dataInicio, dataFim));
 	}
 	
 	@PostMapping
