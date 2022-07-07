@@ -22,15 +22,15 @@ public class Swagger {
 	@Bean
 	public Docket api() {
 		return new Docket(DocumentationType.SWAGGER_2).select()
-				.apis(RequestHandlerSelectors.basePackage("br.com.curso.cast"))
+				.apis(RequestHandlerSelectors.basePackage("br.com.curso.castGroup"))
 				.paths(PathSelectors.ant("/**")).build().apiInfo(apiInfo());
 	}
 
 	private ApiInfo apiInfo() {
-		return new ApiInfo("API para controle de Profissionais",
-				"Sistema de API desenvolvido em SpringBoot com Hibernate e JPA para auto-desenvolvimento", "Versão 1.0",
+		return new ApiInfo("API para Cadastro de curso com metodos personalizados",
+				"Sistema de API desenvolvido em SpringBoot com Hibernate e JPA", "Versão 1.0",
 				"http://castgroup.com.br/",
-				new Contact("Danilo da Silva", "https://github.com/DaniloDaSilv", "danilodasilvadisanto@gmail.com"),
+				new Contact("Danilo da Silva", "https://github.com/DaniloDaSilv/CastGroupProjeto", "danilodasilvadisanto@gmail.com"),
 				"Github do Desenvolvedor", "https://github.com/DaniloDaSilv", Collections.emptyList());
 	}
 
