@@ -11,11 +11,16 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.envers.AuditTable;
+import org.hibernate.envers.Audited;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 @Table(name = "tb_curso")
+@Audited
+@AuditTable("TB_CURSO_LOG")
 public class Curso {
 
 	@Id

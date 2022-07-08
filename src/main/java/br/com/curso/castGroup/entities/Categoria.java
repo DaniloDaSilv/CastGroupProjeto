@@ -7,8 +7,12 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.RelationTargetAuditMode;
+
 @Entity
 @Table(name = "tb_categoria")
+@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 public class Categoria {
 
 	@Id
