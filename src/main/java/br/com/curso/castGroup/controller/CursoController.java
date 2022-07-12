@@ -1,9 +1,6 @@
 package br.com.curso.castGroup.controller;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -19,8 +16,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import Request.CursoPost;
 import br.com.curso.castGroup.entities.Curso;
 import br.com.curso.castGroup.repository.CursoRepository;
+import br.com.curso.castGroup.service.CursoService;
 
 @RestController
 @RequestMapping("/curso")
@@ -30,48 +29,61 @@ public class CursoController {
 	@Autowired
 	private CursoRepository repository;
 
+	@Autowired
+	private CursoService service;
+
 	@GetMapping
-	public ResponseEntity<List<Curso>> GetAll() {
+	public ResponseEntity<?> GetAll() {
+		service.GetAll();
 		return ResponseEntity.ok(repository.findAll());
 	}
 
+	@GetMapping("/{idCurso}")
+	public ResponseEntity<Curso> GetById(@PathVariable long idCurso) {
+		return repository.findById(idCurso).map(resp -> ResponseEntity.ok(resp))
+				.orElse(ResponseEntity.notFound().build());
+	}
+
 	@GetMapping("/descricao/{descricao}")
-	public ResponseEntity<List<Curso>> getByDescricao(@PathVariable String descricao) {
-		return ResponseEntity.ok(repository.getByDescricao(descricao));
+	public ResponseEntity<?> getByDescricao(@PathVariable String descricao) {
+		service.GetByDescricao(descricao);
+		return ResponseEntity.status(HttpStatus.OK).body(service.GetByDescricao(descricao));
 	}
 
 	@GetMapping("/dataInicio/{dataInicio}/{dataFim}")
-	public ResponseEntity<List<Curso>> periodo(
-			@PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate dataInicio,
+	public ResponseEntity<?> periodo(@PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate dataInicio,
 			@PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate dataFim) {
-		LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-		return ResponseEntity.ok(repository.getByDataInicio(dataInicio, dataFim));
+
+		return ResponseEntity.ok(service.periodo(dataInicio, dataFim));
 	}
 
 	@PostMapping
-	public ResponseEntity<Curso> post(@RequestBody Curso curso) {
+	public ResponseEntity<?> post(@RequestBody CursoPost curso) {
 
-		// Logica de curso no mesmo periodo
+		try {
+			service.cadastro(curso);
+			return ResponseEntity.status(HttpStatus.OK).body("Curso cadastrado");
+		} catch (Exception e) {
+			return ResponseEntity.internalServerError().body("Error: "+ e.getMessage());
+		}
 
-		return ResponseEntity.status(HttpStatus.CREATED).body(repository.save(curso));
 	}
 
 	@PutMapping
-	public ResponseEntity<Curso> put(@RequestBody Curso curso) {
-		return ResponseEntity.status(HttpStatus.OK).body(repository.save(curso));
+	public ResponseEntity<?> put(@RequestBody Curso curso) {
+		try {
+			service.atualizar(curso);
+			return ResponseEntity.status(HttpStatus.OK).body("Curso atualizado");
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Curso não atualizado");
+		}
+
 	}
 
 	@DeleteMapping("/{idCurso}")
 	public ResponseEntity<String> delete(@PathVariable long idCurso) {
-		Optional<Curso> item = repository.findById(idCurso);
-		Curso curso = item.get();
-		if (LocalDate.now().isBefore(curso.getDataFim())) {
-			repository.deleteById(idCurso);
-			return ResponseEntity.status(HttpStatus.OK).body("Curso excluido");
-		} else {
-			return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
-					.body("Voce não pode excluir este curso pois ele já foi finalizado");
-		}
+		return service.deletar(idCurso);
 
 	}
+
 }

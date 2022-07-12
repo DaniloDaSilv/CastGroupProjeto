@@ -17,29 +17,31 @@ public class Categoria {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long idCategoria;
+	private Integer idCategoria;
 
 	@NotNull
 	private String categoria;
-
-	
 
 	public Categoria() {
 		// TODO Auto-generated constructor stub
 	}
 
-	public Categoria(long idCategoria,String categoria) {
+	public Categoria(Integer idCategoria, String categoria) {
 		super();
 		this.idCategoria = idCategoria;
 		this.categoria = categoria;
-		
+
+	}
+	public Categoria(Integer idCategoria) {
+		super();
+		this.idCategoria = idCategoria;
 	}
 
 	public long getIdCategoria() {
 		return idCategoria;
 	}
 
-	public void setIdCategoria(long idCategoria) {
+	public void setIdCategoria(Integer idCategoria) {
 		this.idCategoria = idCategoria;
 	}
 
@@ -51,5 +53,4 @@ public class Categoria {
 		this.categoria = categoria;
 	}
 
-	
 }
