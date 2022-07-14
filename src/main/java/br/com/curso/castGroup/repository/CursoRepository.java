@@ -1,7 +1,6 @@
 package br.com.curso.castGroup.repository;
 
 import java.time.LocalDate;
-import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -13,18 +12,17 @@ import br.com.curso.castGroup.entities.Curso;
 @Repository
 public interface CursoRepository extends JpaRepository<Curso, Long> {
 
-	
 	@Query(value = "select count(c.idCurso) from Curso c where c.dataInicio between :di and :df "
 			+ "or (c.dataFim between :di and :df)" + "or (c.dataInicio <= :di and c.dataFim >= :df)"
 			+ "or (c.dataInicio >= :di and c.dataFim <= :df)")
 	public Long consultaDatas(@Param("di") LocalDate dataInicio, @Param("df") LocalDate dataFim);
 
 	@Query(value = "select count(c.idCurso) from Curso c where (c.dataInicio between :di and :df "
-            + "or (c.dataFim between :di and :df)" 
-            + "or (c.dataInicio <= :di and c.dataFim >= :df)"
-            + "or (c.dataInicio >= :di and c.dataFim <= :df))"
-            + "and (c.idCurso != :idc)")
-    public Long consultaDatasEditar(@Param("di") LocalDate dataInicio, @Param("df") LocalDate datafim, @Param("idc") Long idCurso);
+			+ "or (c.dataFim between :di and :df)" + "or (c.dataInicio <= :di and c.dataFim >= :df)"
+			+ "or (c.dataInicio >= :di and c.dataFim <= :df))" + "and (c.idCurso != :idc)")
+	public Long consultaDatasEditar(@Param("di") LocalDate dataInicio, @Param("df") LocalDate datafim,
+			@Param("idc") Long idCurso);
+
+	@Query("select count(*) from Curso c where ((:descricao = c.descricao)) AND (:idCurso != idCurso)")
+	Long editar(String descricao, Long idCurso);
 }
-
-

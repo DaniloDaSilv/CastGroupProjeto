@@ -1,7 +1,6 @@
 package br.com.curso.castGroup.service;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -15,7 +14,6 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -91,26 +89,39 @@ public class CursoService {
 
 		Long countcurso = repository.consultaDatas(curso.getDataInicio(), curso.getDataFim());
 		if (countcurso > 0) {
-			throw new RuntimeException("Existe(m) curso(s) planejados(s) dentro do período informado.");
+			throw new RuntimeException("Você já esta realizando um curso no momento.");
+		}
+		cursoExiste(curso);
+		
+		repository.save(curso);
+	}
+	
+	
+	public void cursoExiste(Curso curso) {
+		Long validacaoId = repository.editar(curso.getDescricao(), curso.getIdCurso());
+		if (validacaoId > 0) {
+			throw new RuntimeException("Curso ja existente");
 		}
 
+	}
+
+	public Curso atualizar(Curso curso) {
 		for (Curso descricao : repository.findAll()) {
 			if (descricao.getDescricao().equals(curso.getDescricao())) {
 			}
 		}
 
-		repository.save(curso);
-	}
-
-	public Curso atualizar(Curso curso) {
+		Long validaId = repository.editar(curso.getDescricao(), curso.getIdCurso());
+		if (validaId > 0) {
+			throw new RuntimeException("Curso ja existente");
+		}
+		Long editar = repository.consultaDatasEditar(curso.getDataInicio(), curso.getDataFim(), curso.getIdCurso());
+		if (editar > 0) {
+			throw new RuntimeException("Tem um curso existente nesse periodo");
+		}
+		cursoExiste(curso);
 		if (curso.getDataInicio().isBefore(LocalDate.now())) {
 			throw new RuntimeException("Data Invalida");
-		}
-
-		Long countcursoEd = repository.consultaDatasEditar(curso.getDataInicio(), curso.getDataFim(),
-				curso.getIdCurso());
-		if (countcursoEd > 0) {
-			throw new RuntimeException("Existe(m) curso(s) planejados(s) dentro do período informado.");
 		}
 		return repository.save(curso);
 	}

@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import Request.CursoPost;
 import br.com.curso.castGroup.entities.Curso;
-import br.com.curso.castGroup.repository.CursoRepository;
 import br.com.curso.castGroup.service.CursoService;
 
 @RestController
