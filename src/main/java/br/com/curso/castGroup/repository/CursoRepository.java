@@ -20,7 +20,7 @@ public interface CursoRepository extends JpaRepository<Curso, Long> {
 	@Query(value = "select count(c.idCurso) from Curso c where (c.dataInicio between :di and :df "
 			+ "or (c.dataFim between :di and :df)" + "or (c.dataInicio <= :di and c.dataFim >= :df)"
 			+ "or (c.dataInicio >= :di and c.dataFim <= :df))" + "and (c.idCurso != :idc)")
-	public Long consultaDatasEditar(@Param("di") LocalDate dataInicio, @Param("df") LocalDate datafim,
+	public Long consultaDatasEditar(@Param("di") LocalDate dataInicio, @Param("df") LocalDate dataFim,
 			@Param("idc") Long idCurso);
 
 	@Query("select count(*) from Curso c where ((:descricao = c.descricao)) AND (:idCurso != idCurso)")
