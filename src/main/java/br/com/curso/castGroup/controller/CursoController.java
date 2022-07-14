@@ -50,7 +50,7 @@ public class CursoController {
 			service.cadastro(curso);
 			return ResponseEntity.status(HttpStatus.OK).body("Curso cadastrado");
 		} catch (Exception e) {
-			return ResponseEntity.internalServerError().body("Error: " + e.getMessage());
+			return ResponseEntity.internalServerError().body("Atenção: " + e.getMessage());
 		}
 
 	}
@@ -61,7 +61,7 @@ public class CursoController {
 			service.atualizar(curso);
 			return ResponseEntity.status(HttpStatus.OK).body("Curso atualizado");
 		} catch (Exception e) {
-			return ResponseEntity.internalServerError().body("Erro: " + e.getMessage());
+			return ResponseEntity.internalServerError().body("Atenção: " + e.getMessage());
 		}
 
 	}

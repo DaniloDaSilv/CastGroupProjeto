@@ -24,7 +24,6 @@ import br.com.curso.castGroup.entities.Categoria;
 import br.com.curso.castGroup.entities.Curso;
 import br.com.curso.castGroup.repository.CursoRepository;
 
-
 @Service
 public class CursoService {
 
@@ -92,17 +91,15 @@ public class CursoService {
 			throw new RuntimeException("Você já esta realizando um curso no momento.");
 		}
 		cursoExiste(curso);
-		
+
 		repository.save(curso);
 	}
-	
-	
+
 	public void cursoExiste(Curso curso) {
 		Long validacaoId = repository.editar(curso.getDescricao(), curso.getIdCurso());
 		if (validacaoId > 0) {
 			throw new RuntimeException("Curso ja existente");
 		}
-
 	}
 
 	public Curso atualizar(Curso curso) {
@@ -111,13 +108,9 @@ public class CursoService {
 			}
 		}
 
-		Long validaId = repository.editar(curso.getDescricao(), curso.getIdCurso());
-		if (validaId > 0) {
-			throw new RuntimeException("Curso ja existente");
-		}
 		Long editar = repository.consultaDatasEditar(curso.getDataInicio(), curso.getDataFim(), curso.getIdCurso());
 		if (editar > 0) {
-			throw new RuntimeException("Tem um curso existente nesse periodo");
+			throw new RuntimeException("Existe(m) curso(s) planejado(s) dentro do periodo informado");
 		}
 		cursoExiste(curso);
 		if (curso.getDataInicio().isBefore(LocalDate.now())) {
