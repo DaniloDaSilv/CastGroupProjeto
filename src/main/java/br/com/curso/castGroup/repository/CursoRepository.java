@@ -14,12 +14,17 @@ import br.com.curso.castGroup.entities.Curso;
 public interface CursoRepository extends JpaRepository<Curso, Long> {
 
 	
-	public List<Curso> getByDescricao(String descricao);
-	
-	@Query("select c from Curso c where "
-			+ " :dataInicio <= c.dataInicio"
-			+ " and :dataFim >= c.dataFim")
-	public List<Curso> getByDataInicio(@Param("dataInicio")LocalDate dataInicio,@Param("dataFim") LocalDate dataFim);
-	
+	@Query(value = "select count(c.idCurso) from Curso c where c.dataInicio between :di and :df "
+			+ "or (c.dataFim between :di and :df)" + "or (c.dataInicio <= :di and c.dataFim >= :df)"
+			+ "or (c.dataInicio >= :di and c.dataFim <= :df)")
+	public Long consultaDatas(@Param("di") LocalDate dataInicio, @Param("df") LocalDate dataFim);
 
+	@Query(value = "select count(c.idCurso) from Curso c where (c.dataInicio between :di and :df "
+            + "or (c.dataFim between :di and :df)" 
+            + "or (c.dataInicio <= :di and c.dataFim >= :df)"
+            + "or (c.dataInicio >= :di and c.dataFim <= :df))"
+            + "and (c.idCurso != :idc)")
+    public Long consultaDatasEditar(@Param("di") LocalDate dataInicio, @Param("df") LocalDate datafim, @Param("idc") Long idCurso);
 }
+
+

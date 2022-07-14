@@ -2,8 +2,17 @@ package br.com.curso.castGroup.service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -24,39 +33,86 @@ public class CursoService {
 	@Autowired
 	CursoRepository repository;
 
-	public List<Curso> GetAll() {
-		return repository.findAll();
+	@PersistenceContext
+	EntityManager entityManager;
+
+	public List<Curso> GetAll(String descricao, LocalDate dataInicio, LocalDate dataFim) {
+
+		CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+		CriteriaQuery<Curso> criteriaQuery = criteriaBuilder.createQuery(Curso.class);
+
+		Root<Curso> curso = criteriaQuery.from(Curso.class);
+		List<Predicate> predList = new ArrayList<>();
+
+		if (descricao != "") {
+			Predicate descricaoPredicate = criteriaBuilder.equal(curso.get("descricao"), descricao);
+			predList.add(descricaoPredicate);
+		}
+
+		if (dataInicio != null) {
+			Predicate dataIniPredicate = criteriaBuilder.greaterThanOrEqualTo(curso.get("dataInicio"), dataInicio);
+			predList.add(dataIniPredicate);
+		}
+
+		if (dataFim != null) {
+			Predicate dataTerPredicate = criteriaBuilder.lessThanOrEqualTo(curso.get("dataFim"), dataFim);
+			predList.add(dataTerPredicate);
+		}
+
+		Predicate[] predicateArray = new Predicate[predList.size()];
+
+		predList.toArray(predicateArray);
+
+		criteriaQuery.where(predicateArray);
+
+		TypedQuery<Curso> query = entityManager.createQuery(criteriaQuery);
+
+		return query.getResultList();
 	}
 
-	public List<Curso> GetByDescricao(String descricao) {
-		return repository.getByDescricao(descricao);
+	public ResponseEntity<Curso> GetById(@PathVariable long idCurso) {
+		return repository.findById(idCurso).map(resp -> ResponseEntity.ok(resp))
+				.orElse(ResponseEntity.notFound().build());
 	}
 
 	public void cadastro(CursoPost cursoPost) {
 		Curso curso = new Curso();
-		br.com.curso.castGroup.entities.Categoria categoria = new Categoria(cursoPost.getCategoria());
+		Categoria categoria = new Categoria(cursoPost.getCategoria());
 
 		curso.setDescricao(cursoPost.getDescricao());
 		curso.setDataInicio(LocalDate.parse(cursoPost.getDataInicio()));
 		curso.setDataFim(LocalDate.parse(cursoPost.getDataFim()));
 		curso.setQtdAlunos(Integer.parseInt(cursoPost.getQtdAlunos()));
 		curso.setCategoria(categoria);
-		
+
 		if (curso.getDataInicio().isBefore(LocalDate.now())) {
 			throw new RuntimeException("Data Invalida");
+		}
+
+		Long countcurso = repository.consultaDatas(curso.getDataInicio(), curso.getDataFim());
+		if (countcurso > 0) {
+			throw new RuntimeException("Existe(m) curso(s) planejados(s) dentro do período informado.");
+		}
+
+		for (Curso descricao : repository.findAll()) {
+			if (descricao.getDescricao().equals(curso.getDescricao())) {
+			}
 		}
 
 		repository.save(curso);
 	}
 
 	public Curso atualizar(Curso curso) {
-		return repository.save(curso);
-	}
+		if (curso.getDataInicio().isBefore(LocalDate.now())) {
+			throw new RuntimeException("Data Invalida");
+		}
 
-	public List<Curso> periodo(@PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate dataInicio,
-			@PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate dataFim) {
-		LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-		return repository.getByDataInicio(dataInicio, dataFim);
+		Long countcursoEd = repository.consultaDatasEditar(curso.getDataInicio(), curso.getDataFim(),
+				curso.getIdCurso());
+		if (countcursoEd > 0) {
+			throw new RuntimeException("Existe(m) curso(s) planejados(s) dentro do período informado.");
+		}
+		return repository.save(curso);
 	}
 
 	public ResponseEntity<String> deletar(long idCurso) {

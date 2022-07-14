@@ -1,6 +1,7 @@
 package br.com.curso.castGroup.controller;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import Request.CursoPost;
@@ -27,34 +29,19 @@ import br.com.curso.castGroup.service.CursoService;
 public class CursoController {
 
 	@Autowired
-	private CursoRepository repository;
-
-	@Autowired
 	private CursoService service;
 
 	@GetMapping
-	public ResponseEntity<?> GetAll() {
-		service.GetAll();
-		return ResponseEntity.ok(repository.findAll());
+	public ResponseEntity<List<Curso>> GetAll(@RequestParam(required = false) String descricao,
+			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataInicio,
+			@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataFim) {
+		List<Curso> curso = service.GetAll(descricao, dataInicio, dataFim);
+		return ResponseEntity.ok().body(curso);
 	}
 
 	@GetMapping("/{idCurso}")
 	public ResponseEntity<Curso> GetById(@PathVariable long idCurso) {
-		return repository.findById(idCurso).map(resp -> ResponseEntity.ok(resp))
-				.orElse(ResponseEntity.notFound().build());
-	}
-
-	@GetMapping("/descricao/{descricao}")
-	public ResponseEntity<?> getByDescricao(@PathVariable String descricao) {
-		service.GetByDescricao(descricao);
-		return ResponseEntity.status(HttpStatus.OK).body(service.GetByDescricao(descricao));
-	}
-
-	@GetMapping("/dataInicio/{dataInicio}/{dataFim}")
-	public ResponseEntity<?> periodo(@PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate dataInicio,
-			@PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate dataFim) {
-
-		return ResponseEntity.ok(service.periodo(dataInicio, dataFim));
+		return service.GetById(idCurso);
 	}
 
 	@PostMapping
@@ -64,7 +51,7 @@ public class CursoController {
 			service.cadastro(curso);
 			return ResponseEntity.status(HttpStatus.OK).body("Curso cadastrado");
 		} catch (Exception e) {
-			return ResponseEntity.internalServerError().body("Error: "+ e.getMessage());
+			return ResponseEntity.internalServerError().body("Error: " + e.getMessage());
 		}
 
 	}
