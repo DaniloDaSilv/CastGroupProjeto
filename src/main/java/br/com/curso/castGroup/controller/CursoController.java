@@ -61,7 +61,7 @@ public class CursoController {
 			service.atualizar(curso);
 			return ResponseEntity.status(HttpStatus.OK).body("Curso atualizado");
 		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Curso não atualizado");
+			return ResponseEntity.internalServerError().body("Erro: " + e.getMessage());
 		}
 
 	}
